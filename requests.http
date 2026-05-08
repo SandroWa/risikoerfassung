@@ -1,0 +1,148 @@
+### Risikoerfassung – Beispielaufrufe
+### Variablen
+@host = http://127.0.0.1:8000
+@contentType = application/json
+
+### Root
+GET {{host}}/
+Accept: application/json
+
+###
+
+### Alle Risiken auflisten
+GET {{host}}/risiken
+Accept: application/json
+
+###
+
+### Risiken filtern nach Risikoart
+GET {{host}}/risiken?risikoart=Gebäude
+Accept: application/json
+
+###
+
+### Risiken filtern nach Status
+GET {{host}}/risiken?status=neu
+Accept: application/json
+
+###
+
+### Risiken filtern – kombiniert
+GET {{host}}/risiken?risikoart=Firma&status=in Bearbeitung
+Accept: application/json
+
+###
+
+### Neues Risiko anlegen – nur Pflichtfelder (versichert_ab_datum, status)
+# @name createMinimal
+POST {{host}}/risiken
+Content-Type: {{contentType}}
+
+{
+  "versichert_ab_datum": "2026-05-08",
+  "status": "neu"
+}
+
+###
+
+### Neues Risiko anlegen – Gebäude (mit optionalen Feldern)
+# @name createGebaeude
+POST {{host}}/risiken
+Content-Type: {{contentType}}
+
+{
+  "status": "neu",
+  "risikoart": "Gebäude",
+  "ort_adresse": "Hauptstraße 1, 12345 Musterstadt",
+  "policennummer": "POL-2026-0001",
+  "zusammenfassung": "Mehrfamilienhaus mit 8 Wohneinheiten"
+}
+
+###
+
+### Neues Risiko anlegen – Firma
+# @name createFirma
+POST {{host}}/risiken
+Content-Type: {{contentType}}
+
+{
+  "versichert_ab_datum": "2026-06-01",
+  "status": "in Bearbeitung",
+  "risikoart": "Firma",
+  "ort_adresse": "Industrieweg 10, 80331 München",
+  "policennummer": "POL-2026-0002",
+  "zusammenfassung": "Maschinenbauunternehmen, 120 Mitarbeitende"
+}
+
+###
+
+### Neues Risiko anlegen – Person
+# @name createPerson
+POST {{host}}/risiken
+Content-Type: {{contentType}}
+
+{
+  "versichert_ab_datum": "2026-04-15",
+  "status": "policiert",
+  "risikoart": "Person",
+  "ort_adresse": "Lindenallee 22, 10115 Berlin",
+  "policennummer": "POL-2026-0003",
+  "zusammenfassung": "Einzelperson, Lebensversicherung"
+}
+
+###
+
+### Einzelnes Risiko abrufen (ID aus createGebaeude)
+@risikoId = {{createGebaeude.response.body.id}}
+
+GET {{host}}/risiken/{{risikoId}}
+Accept: application/json
+
+###
+
+### Risiko aktualisieren – Status setzen (Version muss übereinstimmen)
+PATCH {{host}}/risiken/{{risikoId}}
+Content-Type: {{contentType}}
+
+{
+  "version": 1,
+  "status": "in Bearbeitung"
+}
+
+###
+
+### Risiko aktualisieren – mehrere Felder (Version hochgezählt -> 2)
+PATCH {{host}}/risiken/{{risikoId}}
+Content-Type: {{contentType}}
+
+{
+  "version": 2,
+  "ort_adresse": "Hauptstraße 1a, 12345 Musterstadt",
+  "zusammenfassung": "Mehrfamilienhaus mit 8 Wohneinheiten, Sanierung 2025",
+  "status": "policiert"
+}
+
+###
+
+### Versionskonflikt provozieren (erwartet 409)
+PATCH {{host}}/risiken/{{risikoId}}
+Content-Type: {{contentType}}
+
+{
+  "version": 1,
+  "status": "neu"
+}
+
+###
+
+### Risiko löschen (Version als Query-Param erforderlich)
+DELETE {{host}}/risiken/{{risikoId}}?version=3
+
+###
+
+### Nicht existierendes Risiko (erwartet 404)
+GET {{host}}/risiken/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+###
+
