@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ApiValidationError, createRisiko } from "../api";
+import toast from "react-hot-toast";
+import { ApiValidationError, createRisiko } from "../service/risiken_service";
 import type { Risikoart, Status, RisikoCreate } from "../types";
 
 const RISIKOARTEN: Risikoart[] = ["Gebäude", "Firma", "Person"];
@@ -25,16 +26,22 @@ const INITIAL: FormState = {
 };
 
 interface Props {
-  open: boolean;
-  onClose: () => void;
-  onCreated: () => void;
+  /** Wird aufgerufen, nachdem ein Risiko erfolgreich angelegt wurde. */
+  onCreated?: () => void;
+  /** Optional: Beschriftung des Buttons. */
+  label?: string;
+  /** Optional: zusätzliche CSS-Klasse für den Button. */
+  className?: string;
 }
 
-export default function RisikoDialog({ open, onClose, onCreated }: Props) {
+export default function RisikoDialog({ onCreated, label = "+ Neues Risiko", className }: Props) {
+  const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(INITIAL);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const onClose = () => setOpen(false);
 
   useEffect(() => {
     if (open) {
@@ -53,8 +60,6 @@ export default function RisikoDialog({ open, onClose, onCreated }: Props) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
-
-  if (!open) return null;
 
   const update = <K extends keyof FormState>(key: K, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -103,130 +108,144 @@ export default function RisikoDialog({ open, onClose, onCreated }: Props) {
     if (Object.keys(v).length > 0) {
       setErrors(v);
       setSubmitError(null);
+      toast.error("Bitte Eingaben prüfen");
       return;
     }
     setSubmitting(true);
     setSubmitError(null);
     try {
       await createRisiko(buildPayload());
-      onCreated();
+      setOpen(false);
+      onCreated?.();
     } catch (err) {
+      let msg: string;
       if (err instanceof ApiValidationError) {
         setErrors(err.fieldErrors);
         setSubmitError(err.message);
+        msg = err.message;
       } else {
-        setSubmitError(err instanceof Error ? err.message : "Unbekannter Fehler");
+        msg = err instanceof Error ? err.message : "Unbekannter Fehler";
+        setSubmitError(msg);
       }
+      toast.error(`Fehler beim Anlegen: ${msg}`);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="dialog-overlay" onClick={onClose}>
-      <div className="dialog" onClick={(e) => e.stopPropagation()}>
-        <div className="dialog-header">
-          <h2>Neues Risiko anlegen</h2>
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Schließen">
-            ×
-          </button>
+    <>
+      <button
+        type="button"
+        className={className ?? "btn primary"}
+        onClick={() => setOpen(true)}
+      >
+        {label}
+      </button>
+
+      {open && (
+        <div className="dialog-overlay" onClick={onClose}>
+          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h2>Neues Risiko anlegen</h2>
+              <button type="button" className="icon-btn" onClick={onClose} aria-label="Schließen">
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={onSubmit} noValidate>
+              <div className="form-grid">
+                <div className="field">
+                  <label htmlFor="f-risikoart">Risikoart</label>
+                  <select
+                    id="f-risikoart"
+                    value={form.risikoart}
+                    onChange={(e) => update("risikoart", e.target.value)}
+                  >
+                    <option value="">— nicht angeben —</option>
+                    {RISIKOARTEN.map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                  {errors.risikoart && <div className="field-error">{errors.risikoart}</div>}
+                </div>
+
+                <div className="field">
+                  <label htmlFor="f-datum">Versichert ab *</label>
+                  <input
+                    id="f-datum"
+                    type="date"
+                    required
+                    value={form.versichert_ab_datum}
+                    onChange={(e) => update("versichert_ab_datum", e.target.value)}
+                  />
+                  {errors.versichert_ab_datum && (
+                    <div className="field-error">{errors.versichert_ab_datum}</div>
+                  )}
+                </div>
+
+                <div className="field">
+                  <label htmlFor="f-status">Status *</label>
+                  <select
+                    id="f-status"
+                    required
+                    value={form.status}
+                    onChange={(e) => update("status", e.target.value)}
+                  >
+                    {STATUS_WERTE.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  {errors.status && <div className="field-error">{errors.status}</div>}
+                </div>
+
+                <div className="field">
+                  <label htmlFor="f-policennummer">Policennummer</label>
+                  <input
+                    id="f-policennummer"
+                    type="text"
+                    value={form.policennummer}
+                    onChange={(e) => update("policennummer", e.target.value)}
+                  />
+                  {errors.policennummer && <div className="field-error">{errors.policennummer}</div>}
+                </div>
+
+                <div className="field field--full">
+                  <label htmlFor="f-ort">Ort / Adresse</label>
+                  <input
+                    id="f-ort"
+                    type="text"
+                    value={form.ort_adresse}
+                    onChange={(e) => update("ort_adresse", e.target.value)}
+                  />
+                  {errors.ort_adresse && <div className="field-error">{errors.ort_adresse}</div>}
+                </div>
+
+                <div className="field field--full">
+                  <label htmlFor="f-zusammenfassung">Zusammenfassung</label>
+                  <textarea
+                    id="f-zusammenfassung"
+                    rows={3}
+                    value={form.zusammenfassung}
+                    onChange={(e) => update("zusammenfassung", e.target.value)}
+                  />
+                  {errors.zusammenfassung && (
+                    <div className="field-error">{errors.zusammenfassung}</div>
+                  )}
+                </div>
+              </div>
+
+              {submitError && <div className="error" style={{ marginTop: "1rem" }}>⚠ {submitError}</div>}
+
+              <div className="dialog-actions">
+                <button type="submit" className="btn primary" disabled={submitting}>
+                  {submitting ? "Speichern…" : "Speichern"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <form onSubmit={onSubmit} noValidate>
-          <div className="form-grid">
-            <div className="field">
-              <label htmlFor="f-risikoart">Risikoart</label>
-              <select
-                id="f-risikoart"
-                value={form.risikoart}
-                onChange={(e) => update("risikoart", e.target.value)}
-              >
-                <option value="">— nicht angeben —</option>
-                {RISIKOARTEN.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-              {errors.risikoart && <div className="field-error">{errors.risikoart}</div>}
-            </div>
-
-            <div className="field">
-              <label htmlFor="f-datum">Versichert ab *</label>
-              <input
-                id="f-datum"
-                type="date"
-                required
-                value={form.versichert_ab_datum}
-                onChange={(e) => update("versichert_ab_datum", e.target.value)}
-              />
-              {errors.versichert_ab_datum && (
-                <div className="field-error">{errors.versichert_ab_datum}</div>
-              )}
-            </div>
-
-            <div className="field">
-              <label htmlFor="f-status">Status *</label>
-              <select
-                id="f-status"
-                required
-                value={form.status}
-                onChange={(e) => update("status", e.target.value)}
-              >
-                {STATUS_WERTE.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-              {errors.status && <div className="field-error">{errors.status}</div>}
-            </div>
-
-            <div className="field">
-              <label htmlFor="f-policennummer">Policennummer</label>
-              <input
-                id="f-policennummer"
-                type="text"
-                value={form.policennummer}
-                onChange={(e) => update("policennummer", e.target.value)}
-              />
-              {errors.policennummer && <div className="field-error">{errors.policennummer}</div>}
-            </div>
-
-            <div className="field field--full">
-              <label htmlFor="f-ort">Ort / Adresse</label>
-              <input
-                id="f-ort"
-                type="text"
-                value={form.ort_adresse}
-                onChange={(e) => update("ort_adresse", e.target.value)}
-              />
-              {errors.ort_adresse && <div className="field-error">{errors.ort_adresse}</div>}
-            </div>
-
-            <div className="field field--full">
-              <label htmlFor="f-zusammenfassung">Zusammenfassung</label>
-              <textarea
-                id="f-zusammenfassung"
-                rows={3}
-                value={form.zusammenfassung}
-                onChange={(e) => update("zusammenfassung", e.target.value)}
-              />
-              {errors.zusammenfassung && (
-                <div className="field-error">{errors.zusammenfassung}</div>
-              )}
-            </div>
-          </div>
-
-          {submitError && <div className="error" style={{ marginTop: "1rem" }}>⚠ {submitError}</div>}
-
-          <div className="dialog-actions">
-            <button type="button" className="btn ghost" onClick={onClose} disabled={submitting}>
-              Abbrechen
-            </button>
-            <button type="submit" className="btn primary" disabled={submitting}>
-              {submitting ? "Speichern…" : "Speichern"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
-
