@@ -1,2 +1,4 @@
 litestar[standard]>=2.8.0
 prometheus-client>=0.20.0
+
+pytest

@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  # -------------------------------------------------------------------------
+  # 1) Backend-Tests (pytest)
+  # -------------------------------------------------------------------------
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run pytest
+        run: python -m pytest tests/ -v --junitxml=pytest-report.xml
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report
+          path: pytest-report.xml
+
+  # -------------------------------------------------------------------------
+  # 2) Frontend bauen
+  # -------------------------------------------------------------------------
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+  # -------------------------------------------------------------------------
+  # 3) Gesamtprojekt paketieren (nur wenn Tests + Build grün sind)
+  # -------------------------------------------------------------------------
+  package:
+    name: Package Application
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Determine version
+        id: version
+        run: echo "value=$(date +'%Y%m%d')-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Create release archive
+        run: |
+          mkdir -p release/risikoerfassung
+          cp -r app requirements.txt README.md release/risikoerfassung/
+          cp -r frontend/dist release/risikoerfassung/frontend-dist
+          cd release
+          tar -czf "risikoerfassung-${{ steps.version.outputs.value }}.tar.gz" risikoerfassung
+          zip -r "risikoerfassung-${{ steps.version.outputs.value }}.zip" risikoerfassung
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: risikoerfassung-${{ steps.version.outputs.value }}
+          path: |
+            release/*.tar.gz
+            release/*.zip
+
