@@ -66,3 +66,5 @@ export async function createRisiko(payload: RisikoCreate): Promise<Risiko> {
 
     return (await response.json()) as Risiko;
 }
+
+
