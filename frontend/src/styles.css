@@ -143,8 +143,16 @@ body {
   overflow: hidden;
 }
 
+/* Scroll-Container nur um die eigentliche Tabelle, damit
+   `.count` darunter nicht horizontal mitscrollen muss. */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .risiko-table {
   width: 100%;
+  min-width: 760px; /* erzwingt horizontalen Scrollbalken bei schmalen Viewports */
   border-collapse: collapse;
   font-size: 0.92rem;
 }
@@ -155,6 +163,13 @@ body {
   text-align: left;
   border-bottom: 1px solid var(--c-border);
   vertical-align: top;
+  white-space: nowrap; /* kurze Spalten nicht umbrechen */
+}
+
+/* Lange Texte dürfen umbrechen */
+.risiko-table td.summary,
+.risiko-table td:nth-child(4) /* Ort / Adresse */ {
+  white-space: normal;
 }
 
 .risiko-table th {

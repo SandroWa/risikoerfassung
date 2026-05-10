@@ -1,4 +1,3 @@
-"""Seed-Daten, die beim Start der Anwendung in den Service geladen werden."""
 from __future__ import annotations
 
 import logging
@@ -63,7 +62,6 @@ SEED_RISIKEN: list[RisikoCreateDto] = [
 
 
 def seed_risiken() -> None:
-    """Befüllt den RisikoService einmalig mit Beispieldaten."""
     service = RisikoService()
     if service.list():
         logger.info("Seed übersprungen – es sind bereits Risiken vorhanden.")

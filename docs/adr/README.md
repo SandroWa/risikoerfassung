@@ -20,11 +20,10 @@ Format orientiert sich locker an [Michael Nygards ADR-Template](https://cognitec
 | 0001 | [Litestar als Backend-Framework](0001-litestar-backend.md) |
 | 0002 | [React + Vite als Frontend-Stack](0002-react-vite-frontend.md) |
 | 0003 | [TypeScript im Frontend](0003-typescript-frontend.md) |
-| 0004 | [react-router-dom für Routing](0004-react-router.md) |
-| 0005 | [react-hot-toast für Benachrichtigungen](0005-react-hot-toast.md) |
-| 0006 | [Prometheus für Metriken](0006-prometheus-metrics.md) |
-| 0007 | [pytest für Tests](0007-pytest-testing.md) |
-| 0008 | [GitHub Actions als CI/CD](0008-github-actions-ci.md) |
+| 0004 | [react-hot-toast für Benachrichtigungen](0004-react-hot-toast.md) |
+| 0005 | [Prometheus für Metriken](0005-prometheus-metrics.md) |
+| 0006 | [pytest für Tests](0006-pytest-testing.md) |
+| 0007 | [GitHub Actions als CI/CD](0007-github-actions-ci.md) |
 
 ### Architektur-Prinzipien
 
@@ -32,8 +31,4 @@ Format orientiert sich locker an [Michael Nygards ADR-Template](https://cognitec
 |------|----------------------------------------------------|
 | 1001 | [Layered Architecture (Controller → Service → Model)](1001-layered-architecture.md) |
 | 1002 | [DTO-Pattern für API-Eingaben](1002-dto-pattern.md) |
-| 1003 | [Dataclasses als Domänenmodelle](1003-dataclasses-domain-model.md) |
-| 1004 | [Optimistic Locking via `version`](1004-optimistic-locking.md) |
-| 1005 | [In-Memory-Store statt Datenbank](1005-in-memory-store.md) |
-| 1006 | [Domain-Exceptions statt HTTP-Exceptions im Service](1006-domain-exceptions.md) |
 

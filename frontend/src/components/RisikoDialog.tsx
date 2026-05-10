@@ -6,6 +6,7 @@ import type { Risikoart, Status, RisikoCreate } from "../types";
 const RISIKOARTEN: Risikoart[] = ["Gebäude", "Firma", "Person"];
 const STATUS_WERTE: Status[] = ["neu", "in Bearbeitung", "policiert"];
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const POL_NUMMER_REGEX = /^POL-\d{4}-\d{4}$/;
 
 interface FormState {
   risikoart: string;
@@ -26,11 +27,8 @@ const INITIAL: FormState = {
 };
 
 interface Props {
-  /** Wird aufgerufen, nachdem ein Risiko erfolgreich angelegt wurde. */
   onCreated?: () => void;
-  /** Optional: Beschriftung des Buttons. */
   label?: string;
-  /** Optional: zusätzliche CSS-Klasse für den Button. */
   className?: string;
 }
 
@@ -86,6 +84,9 @@ export default function RisikoDialog({ onCreated, label = "+ Neues Risiko", clas
     }
     if (form.risikoart && !RISIKOARTEN.includes(form.risikoart as Risikoart)) {
       errs.risikoart = "Ungültige Risikoart";
+    }
+    if (form.policennummer && !POL_NUMMER_REGEX.test(form.policennummer)) {
+      errs.policennummer = "Falsches Format (erwartet: POL-1234-5678)";
     }
     return errs;
   };

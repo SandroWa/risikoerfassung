@@ -5,6 +5,7 @@ from litestar.contrib.prometheus import PrometheusConfig, PrometheusController
 from litestar.openapi import OpenAPIConfig
 
 from app.controller.risiko_controller import RisikoController
+from app.errors import EXCEPTION_HANDLERS
 from app.seed import seed_risiken
 
 
@@ -25,10 +26,7 @@ async def on_startup() -> None:
 prometheus_config = PrometheusConfig(
     app_name="risikoerfassung",
     prefix="risikoerfassung",
-    # Pfad-Parameter werden in Label-Werten als Template (z. B. /risiken/{risiko_id})
-    # erhalten, sodass die Kardinalität gering bleibt.
     group_path=True,
-    # /metrics-Endpoint selbst nicht mitmessen
     excluded_http_methods=None,
 )
 
@@ -38,4 +36,5 @@ app = Litestar(
     openapi_config=OpenAPIConfig(title="Risikoerfassung API", version="0.1.0"),
     on_startup=[on_startup],
     middleware=[prometheus_config.middleware],
+    exception_handlers=EXCEPTION_HANDLERS,
 )

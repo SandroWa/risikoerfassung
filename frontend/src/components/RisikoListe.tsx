@@ -93,9 +93,9 @@ export default function RisikoListe() {
           </select>
         </label>
 
-        <button onClick={() => void load(true)} disabled={loading}>
-          {loading ? "Lädt…" : "Aktualisieren"}
-        </button>
+        {/*<button onClick={() => void load(true)} disabled={loading}>*/}
+        {/*  {loading ? "Lädt…" : "Aktualisieren"}*/}
+        {/*</button>*/}
 
         <div style={{ marginLeft: "auto" }}>
           <RisikoDialog onCreated={() => {
@@ -113,34 +113,34 @@ export default function RisikoListe() {
 
       {risiken.length > 0 && (
         <div className="table-wrapper">
-          <table className="risiko-table">
-            <thead>
-              <tr>
-                <th>Policennummer</th>
-                <th>Risikoart</th>
-                <th>Versichert ab</th>
-                <th>Ort / Adresse</th>
-                <th>Zusammenfassung</th>
-                <th>Status</th>
-                <th>Version</th>
-              </tr>
-            </thead>
-            <tbody>
-              {risiken.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.policennummer ?? "—"}</td>
-                  <td>{r.risikoart ?? "—"}</td>
-                  <td>{formatDate(r.versichert_ab_datum)}</td>
-                  <td>{r.ort_adresse ?? "—"}</td>
-                  <td className="summary">{r.zusammenfassung ?? "—"}</td>
-                  <td>
-                    <span className={statusBadgeClass(r.status)}>{r.status}</span>
-                  </td>
-                  <td>{r.version}</td>
+          <div className="table-scroll">
+            <table className="risiko-table">
+              <thead>
+                <tr>
+                  <th>Policennummer</th>
+                  <th>Risikoart</th>
+                  <th>Versichert ab</th>
+                  <th>Ort / Adresse</th>
+                  <th>Zusammenfassung</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {risiken.map((r) => (
+                  <tr key={r.id}>
+                    <td>{r.policennummer ?? "—"}</td>
+                    <td>{r.risikoart ?? "—"}</td>
+                    <td>{formatDate(r.versichert_ab_datum)}</td>
+                    <td>{r.ort_adresse ?? "—"}</td>
+                    <td className="summary">{r.zusammenfassung ?? "—"}</td>
+                    <td>
+                      <span className={statusBadgeClass(r.status)}>{r.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div className="count">{risiken.length} Eintrag/Einträge</div>
         </div>
       )}

@@ -3,7 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
+from typing import Annotated
 from uuid import UUID, uuid4
+
+from msgspec import Meta
 
 
 class Risikoart(str, Enum):
@@ -16,6 +19,14 @@ class Status(str, Enum):
     NEU = "neu"
     IN_BEARBEITUNG = "in Bearbeitung"
     POLICIERT = "policiert"
+
+
+# Erlaubtes Format einer Policennummer, z. B. "POL-1234-5678".
+POLICENNUMMER_PATTERN = r"^POL-\d{4}-\d{4}$"
+Policennummer = Annotated[
+    str,
+    Meta(pattern=POLICENNUMMER_PATTERN, description="Format: POL-1234-5678"),
+]
 
 
 @dataclass
@@ -35,7 +46,7 @@ class Risiko:
     # Optionale Felder
     risikoart: Risikoart | None = None
     ort_adresse: str | None = None
-    policennummer: str | None = None
+    policennummer: Policennummer | None = None
     zusammenfassung: str | None = None
 
     # Server-verwaltet
@@ -59,7 +70,7 @@ class RisikoCreateDto:
     # Optionale Felder
     risikoart: Risikoart | None = None
     ort_adresse: str | None = None
-    policennummer: str | None = None
+    policennummer: Policennummer | None = None
     zusammenfassung: str | None = None
 
 
@@ -75,7 +86,7 @@ class RisikoUpdateDto:
     risikoart: Risikoart | None = None
     versichert_ab_datum: date | None = None
     ort_adresse: str | None = None
-    policennummer: str | None = None
+    policennummer: Policennummer | None = None
     zusammenfassung: str | None = None
     status: Status | None = None
     version: int | None = None

@@ -51,6 +51,7 @@ POST {{host}}/risiken
 Content-Type: {{contentType}}
 
 {
+  "versichert_ab_datum": "2026-06-01",
   "status": "neu",
   "risikoart": "Gebäude",
   "ort_adresse": "Hauptstraße 1, 12345 Musterstadt",
