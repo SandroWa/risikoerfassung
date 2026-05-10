@@ -138,12 +138,6 @@ Content-Type: application/json
 }
 ```
 
-### Beispiel: Risiko löschen
-
-```http
-DELETE /risiken/2c1f…?version=2
-```
-
 ---
 
 ## Setup & Start

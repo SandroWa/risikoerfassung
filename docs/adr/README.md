@@ -19,11 +19,6 @@ Format orientiert sich locker an [Michael Nygards ADR-Template](https://cognitec
 |------|----------------------------------------------------|
 | 0001 | [Litestar als Backend-Framework](0001-litestar-backend.md) |
 | 0002 | [React + Vite als Frontend-Stack](0002-react-vite-frontend.md) |
-| 0003 | [TypeScript im Frontend](0003-typescript-frontend.md) |
-| 0004 | [react-hot-toast für Benachrichtigungen](0004-react-hot-toast.md) |
-| 0005 | [Prometheus für Metriken](0005-prometheus-metrics.md) |
-| 0006 | [pytest für Tests](0006-pytest-testing.md) |
-| 0007 | [GitHub Actions als CI/CD](0007-github-actions-ci.md) |
 
 ### Architektur-Prinzipien
 

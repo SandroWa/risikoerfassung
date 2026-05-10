@@ -36,6 +36,6 @@ Verwendet wird **[React 18](https://react.dev/)** als UI-Library zusammen mit
 
 - ➕ Sekundenschneller Dev-Start, schneller Build.
 - ➕ Einfache Integration mit TypeScript.
-- ➖ Kein eingebautes Routing → wird durch `react-router-dom` ergänzt (siehe ADR 0004).
+- ➖ Kein eingebautes Routing → wird durch `react-router-dom` ergänzt.
 - ➖ Keine SSR (für diese Anwendung aber kein Nachteil).
 
