@@ -67,4 +67,26 @@ export async function createRisiko(payload: RisikoCreate): Promise<Risiko> {
     return (await response.json()) as Risiko;
 }
 
+export async function deleteRisiko(risiko: Risiko): Promise<void> {
+    const url = `${BASE_URL}/risiken/${risiko.id}?version=${risiko.version}`;
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: {Accept: "application/json"},
+    });
+
+    if (!response.ok) {
+        let message = `Fehler beim Löschen (${response.status})`;
+        try {
+            const body = await response.json();
+            if (typeof body?.message === "string") message = body.message;
+            else if (typeof body?.detail === "string") message = body.detail;
+        } catch {
+            // body kein JSON – ignorieren
+        }
+        if (response.status >= 400 && response.status < 500) {
+            throw new ApiValidationError(message, response.status, {});
+        }
+        throw new Error(message);
+    }
+}
 

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { fetchRisiken } from "../service/risiken_service";
+import { fetchRisiken, deleteRisiko } from "../service/risiken_service";
 import type { Risiko, Risikoart, Status } from "../types";
+import { BiSolidTrash } from "react-icons/bi";
 import RisikoDialog from "./RisikoDialog.tsx";
 
 const RISIKOARTEN: Risikoart[] = ["Gebäude", "Firma", "Person"];
@@ -25,6 +26,10 @@ function statusBadgeClass(status: Status): string {
   }
 }
 
+function onDelete(success: boolean) {
+    success? toast.success("Risiko erfolgreich gelöscht") : toast.error("Fehler beim Löschen");
+}
+
 export default function RisikoListe() {
   const [risiken, setRisiken] = useState<Risiko[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +39,7 @@ export default function RisikoListe() {
   const [reloadKey, setReloadKey] = useState(0);
   const isInitialLoad = useRef(true);
 
-  const load = useCallback(async (notify = false) => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -43,23 +48,22 @@ export default function RisikoListe() {
         status: filterStatus || undefined,
       });
       setRisiken(data);
-      if (notify) {
+      if (isInitialLoad.current) {
+        isInitialLoad.current = false;
         toast.success(`Liste aktualisiert (${data.length} Einträge)`);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Unbekannter Fehler";
       setError(msg);
-      if (notify) toast.error(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   }, [filterRisikoart, filterStatus]);
 
   useEffect(() => {
-    const notify = !isInitialLoad.current;
-    isInitialLoad.current = false;
-    void load(notify);
-  }, [load, reloadKey]);
+    void load();
+  }, [reloadKey]);
 
   return (
     <>
@@ -123,6 +127,7 @@ export default function RisikoListe() {
                   <th>Ort / Adresse</th>
                   <th>Zusammenfassung</th>
                   <th>Status</th>
+                  <th>Aktionen</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,6 +140,17 @@ export default function RisikoListe() {
                     <td className="summary">{r.zusammenfassung ?? "—"}</td>
                     <td>
                       <span className={statusBadgeClass(r.status)}>{r.status}</span>
+                    </td>
+                    <td>
+                      <button onClick={() => deleteRisiko(r)
+                          .then(() => {
+                            setReloadKey((k) => k + 1);
+                            onDelete(true);
+                            return;
+                          })
+                          .catch(() => onDelete(false))}>
+                        <BiSolidTrash />
+                      </button>
                     </td>
                   </tr>
                 ))}

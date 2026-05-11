@@ -63,7 +63,7 @@ class RisikoController(Controller):
         version: int | None = None,
     ) -> None:
         try:
-            service.delete(risiko_id, expected_version=version)
+            service.delete(risiko_id, version)
         except RisikoNotFoundError as e:
             raise NotFoundException(detail=str(e)) from e
         except RisikoVersionConflictError as e:
