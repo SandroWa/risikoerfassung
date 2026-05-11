@@ -20,7 +20,6 @@ Verwendet wird **[React 18](https://react.dev/)** als UI-Library zusammen mit
   ohne SEO-Anspruch zu schwergewichtig.
 - **Angular** – größere Lernkurve, mehr Konventionen als nötig.
 - **Svelte/SvelteKit** – attraktiv, aber weniger verbreitet im Team-Kontext.
-- **Create React App** – nicht mehr aktiv gepflegt, langsamer als Vite.
 
 ## Begründung
 
@@ -29,7 +28,7 @@ Verwendet wird **[React 18](https://react.dev/)** als UI-Library zusammen mit
 - **React** ist weit verbreitet, gut dokumentiert und passt perfekt zu einem
   einfachen CRUD-Frontend.
 - Die Kombination ist „opinion-light": kein SSR, kein File-Routing, keine
-  Magie – nur Komponenten und ein Build.
+  Magie.
 - Sehr kleines Bundle ohne große Defaults.
 
 ## Konsequenzen

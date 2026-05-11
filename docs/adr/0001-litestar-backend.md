@@ -34,6 +34,7 @@ verwendet.
 - **First-class async** und gute Performance.
 - Eingebaute Integrationen wie der **Prometheus-Controller**.
 
+
 ## Konsequenzen
 
 - ➕ Wenig Boilerplate, klare Trennung Controller/Service.
