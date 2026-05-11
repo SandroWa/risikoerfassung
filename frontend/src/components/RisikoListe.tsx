@@ -63,7 +63,7 @@ export default function RisikoListe() {
 
   useEffect(() => {
     void load();
-  }, [reloadKey]);
+  }, [load, reloadKey]);
 
   return (
     <>
