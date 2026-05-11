@@ -48,7 +48,7 @@ export default function RisikoListe() {
         status: filterStatus || undefined,
       });
       setRisiken(data);
-      if (isInitialLoad.current) {
+      if (!isInitialLoad.current) {
         isInitialLoad.current = false;
         toast.success(`Liste aktualisiert (${data.length} Einträge)`);
       }
